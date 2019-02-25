@@ -37,7 +37,8 @@ namespace WinColourLabels.Handlers
                 Text = "Добавить метку \"Красный\"",
                 Image = Properties.Resources.Red16
             };
-            itemred.Click += (sender, args) => AddLabel(FileLabel.RED);
+            EventHandler redaddhandler = (s, e) => AddLabel(FileLabel.RED);
+            itemred.Click += redaddhandler ;
             menu.Items.Add(itemred);
 
             var itemgreen = new ToolStripMenuItem
@@ -45,7 +46,8 @@ namespace WinColourLabels.Handlers
                 Text = "Добавить метку \"Зеленый\"",
                 Image = Properties.Resources.Green16
             };
-            itemgreen.Click += (sender, args) => AddLabel(FileLabel.GREEN);
+            EventHandler greenaddhandler = (sender, args) => AddLabel(FileLabel.GREEN);
+            itemgreen.Click += greenaddhandler;
             menu.Items.Add(itemgreen);
 
             var itemblue = new ToolStripMenuItem
@@ -53,7 +55,8 @@ namespace WinColourLabels.Handlers
                 Text = "Добавить метку \"Синий\"",
                 Image = Properties.Resources.Blue16
             };
-            itemblue.Click += (sender, args) => AddLabel(FileLabel.BLUE);
+            EventHandler blueaddhandler = (sender, args) => AddLabel(FileLabel.BLUE);
+            itemblue.Click += blueaddhandler;
             menu.Items.Add(itemblue);
 
             var itemorange = new ToolStripMenuItem
@@ -61,7 +64,8 @@ namespace WinColourLabels.Handlers
                 Text = "Добавить метку \"Оранжевый\"",
                 Image = Properties.Resources.Orange16
             };
-            itemorange.Click += (sender, args) => AddLabel(FileLabel.ORANGE);
+            EventHandler orangeaddhandler = (sender, args) => AddLabel(FileLabel.ORANGE);
+            itemorange.Click += orangeaddhandler;
             menu.Items.Add(itemorange);
 
             var itempurple = new ToolStripMenuItem
@@ -69,7 +73,8 @@ namespace WinColourLabels.Handlers
                 Text = "Добавить метку \"Фиолетовый\"",
                 Image = Properties.Resources.Purple16
             };
-            itempurple.Click += (sender, args) => AddLabel(FileLabel.PURPLE);
+            EventHandler purpleaddhandler = (sender, args) => AddLabel(FileLabel.PURPLE);
+            itempurple.Click += purpleaddhandler;
             menu.Items.Add(itempurple);
 
             foreach (var path in SelectedPaths)
@@ -81,33 +86,40 @@ namespace WinColourLabels.Handlers
                         continue;
                     case FileLabel.RED:
                         itemred.Text = "Удалить метку \"Красный\"";
+                        itemred.Click -= redaddhandler;
                         itemred.Click += (sender, args) => RemoveLabel(FileLabel.RED);
                         break;
                     case FileLabel.GREEN:
                         itemgreen.Text = "Удалить метку \"Зеленый\"";
+                        itemgreen.Click -= greenaddhandler;
                         itemgreen.Click += (sender, args) => RemoveLabel(FileLabel.GREEN);
                         break;
                     case FileLabel.BLUE:
                         itemblue.Text = "Удалить метку \"Синий\"";
+                        itemblue.Click -= blueaddhandler;
                         itemblue.Click += (sender, args) => RemoveLabel(FileLabel.BLUE);
                         break;
                     case FileLabel.ORANGE:
                         itemorange.Text = "Удалить метку \"Оранжевый\"";
+                        itemorange.Click -= orangeaddhandler;
                         itemorange.Click += (sender, args) => RemoveLabel(FileLabel.ORANGE);
                         break;
                     case FileLabel.PURPLE:
                         itempurple.Text = "Удалить метку \"Фиолетовый\"";
+                        itempurple.Click -= purpleaddhandler;
                         itempurple.Click += (sender, args) => RemoveLabel(FileLabel.PURPLE);
                         break;
                 }
             }
             return menu;
         }
-        private void AddLabel(FileLabel tag)
+        private void AddLabel(FileLabel label)
         {
             foreach (var path in SelectedPaths)
             {
-                dbase.SetFileLabel(path, tag);
+                SharpShell.Diagnostics.Logging.Log("add-------------------------------------------------" + path + " - " + dbase.GetFileLabel(path).ToString() + " - " + label.ToString());
+
+                dbase.SetFileLabel(path, label);
                 Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(path), IntPtr.Zero);
             }
             dbase.SaveBaseAsync();
@@ -118,6 +130,7 @@ namespace WinColourLabels.Handlers
             {
                 if (dbase.GetFileLabel(path) == label)
                 {
+                    SharpShell.Diagnostics.Logging.Log("remove-------------------------------------------------" + path+" - " +dbase.GetFileLabel(path).ToString() + " - " + label.ToString());
                     dbase.SetFileLabel(path, FileLabel.NOTHING);
                     Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(path), IntPtr.Zero);
                 }

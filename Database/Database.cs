@@ -33,22 +33,21 @@ namespace WinColourLabels
             return instance;
         }
 
-
-
         public FileLabel GetFileLabel(string path)
         {
-            if (tagstable.ContainsKey(path))
+            if (tagstable.Contains(path))
                 return (FileLabel)tagstable[path];
             else return FileLabel.NOTHING;
-
         }
         public void SetFileLabel(string path, FileLabel label)
         {
-            switch (label)
+            if(label == FileLabel.NOTHING)
             {
-                case FileLabel.NOTHING: tagstable.Remove(path); break;
-                default:
-                    tagstable[path] = (int)label;  break;
+                tagstable.Remove(path);
+            }
+            else
+            {
+                tagstable[path] = (int)label;
             }
         }
 
