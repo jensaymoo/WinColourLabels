@@ -1,0 +1,3 @@
+[submodule "SharpShell"]
+	path = SharpShell
+	url = https://github.com/dwmkerr/sharpshell
