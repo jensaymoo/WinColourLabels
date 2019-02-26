@@ -77,9 +77,9 @@ namespace WinColourLabels.Handlers
             itempurple.Click += purpleaddhandler;
             menu.Items.Add(itempurple);
 
-            foreach (var path in SelectedPaths)
+            for (int i = 0; i < SelectedPaths.Length; i++)
             {
-                FileLabel label = dbase.GetFileLabel(path);
+                FileLabel label = dbase.GetFileLabel(SelectedPaths[i]);
                 switch (label)
                 {
                     case FileLabel.NOTHING:
@@ -115,24 +115,22 @@ namespace WinColourLabels.Handlers
         }
         private void AddLabel(FileLabel label)
         {
-            foreach (var path in SelectedPaths)
+            for (int i = 0; i < SelectedPaths.Length; i++)
             {
-                SharpShell.Diagnostics.Logging.Log("add-------------------------------------------------" + path + " - " + dbase.GetFileLabel(path).ToString() + " - " + label.ToString());
-
-                dbase.SetFileLabel(path, label);
-                Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(path), IntPtr.Zero);
+                dbase.SetFileLabel(SelectedPaths[i], label);
+                Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(SelectedPaths[i]), IntPtr.Zero);
             }
             dbase.SaveBaseAsync();
         }
         private void RemoveLabel(FileLabel label)
         {
-            foreach (var path in SelectedPaths)
+            for(int i =0; i < SelectedPaths.Length; i++)
             {
-                if (dbase.GetFileLabel(path) == label)
+                if (dbase.GetFileLabel(SelectedPaths[i]) == label)
                 {
-                    SharpShell.Diagnostics.Logging.Log("remove-------------------------------------------------" + path+" - " +dbase.GetFileLabel(path).ToString() + " - " + label.ToString());
-                    dbase.SetFileLabel(path, FileLabel.NOTHING);
-                    Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(path), IntPtr.Zero);
+                    dbase.SetFileLabel(SelectedPaths[i], FileLabel.NOTHING);
+
+                    Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(SelectedPaths[i]), IntPtr.Zero);
                 }
             }
             dbase.SaveBaseAsync();

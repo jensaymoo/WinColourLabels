@@ -11,7 +11,7 @@ namespace WinColourLabels
     public class Database
     {
         private static Database instance;
-        private Hashtable tagstable = new Hashtable();
+        private Hashtable labelstable = new Hashtable();
 
 
         private Database()
@@ -26,7 +26,7 @@ namespace WinColourLabels
                 if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
                                     "\\WinColourLabels\\Labels.db"))
                 {
-                    instance.tagstable = Deserialize<Hashtable>(File.ReadAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                    instance.labelstable = Deserialize<Hashtable>(File.ReadAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
                                                                                     "\\WinColourLabels\\Labels.db"));
                 }
             }
@@ -35,33 +35,36 @@ namespace WinColourLabels
 
         public FileLabel GetFileLabel(string path)
         {
-            if (tagstable.Contains(path))
-                return (FileLabel)tagstable[path];
+            object curlabel = labelstable[path];
+
+            if (curlabel != null)
+                return (FileLabel)curlabel;
             else return FileLabel.NOTHING;
         }
         public void SetFileLabel(string path, FileLabel label)
         {
             if(label == FileLabel.NOTHING)
             {
-                tagstable.Remove(path);
+                labelstable.Remove(path);
             }
             else
             {
-                tagstable[path] = (int)label;
+                labelstable[path] = (int)label;
             }
         }
 
-        private object dbfile_lock = new object();
+        private readonly object dbfile_lock = new object();
         public void SaveBase()
         {
             lock(dbfile_lock)
                 File.WriteAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                                "\\WinColourLabels\\Labels.db", Serialize(tagstable));
+                                                "\\WinColourLabels\\Labels.db", Serialize(labelstable));
         }
         public async void SaveBaseAsync()
         {
             await Task.Run(() => SaveBase());
         }
+
         public static byte[] Serialize<T>(T obj)
         {
             using (MemoryStream memStream = new MemoryStream())

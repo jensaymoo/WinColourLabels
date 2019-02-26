@@ -14,9 +14,9 @@ namespace WinColourLabels.AbstractHandlers
     [COMServerAssociation(AssociationType.AllFilesAndFolders)]
     public abstract class AbstractContextMenuHandler : SharpContextMenu
     {
-        protected IEnumerable<string> SelectedPaths
+        protected string[] SelectedPaths
         {
-            get { return SelectedItemPaths; }
+            get { return SelectedItemPaths.ToArray(); }
         }
 
         protected virtual bool CanShowContextMenu()
