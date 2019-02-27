@@ -1,38 +1,24 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
+using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
-namespace WinColourLabels
+namespace WinColourLabels.Database
 {
-    public enum FileLabel { RED, ORANGE, BLUE, GREEN, PURPLE, NOTHING };
-
-    public class Database
+    class InMemoryBase : IDatabase
     {
-        private static Database instance;
         private Hashtable labelstable = new Hashtable();
 
-
-        private Database()
-        { }
-
-        public static Database GetInstance()
+        public InMemoryBase()
         {
-            if (instance == null)
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                    "\\WinColourLabels\\Labels.db"))
             {
-                instance = new Database();
-
-                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                    "\\WinColourLabels\\Labels.db"))
-                {
-                    instance.labelstable = Deserialize<Hashtable>(File.ReadAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                                                                    "\\WinColourLabels\\Labels.db"));
-                }
+                labelstable = Deserialize<Hashtable>(File.ReadAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                                                                                "\\WinColourLabels\\Labels.db"));
             }
-            return instance;
         }
-
         public FileLabel GetFileLabel(string path)
         {
             object curlabel = labelstable[path];
@@ -43,7 +29,7 @@ namespace WinColourLabels
         }
         public void SetFileLabel(string path, FileLabel label)
         {
-            if(label == FileLabel.NOTHING)
+            if (label == FileLabel.NOTHING)
             {
                 labelstable.Remove(path);
             }
@@ -56,7 +42,7 @@ namespace WinColourLabels
         private readonly object dbfile_lock = new object();
         public void SaveBase()
         {
-            lock(dbfile_lock)
+            lock (dbfile_lock)
                 File.WriteAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
                                                 "\\WinColourLabels\\Labels.db", Serialize(labelstable));
         }
@@ -65,7 +51,8 @@ namespace WinColourLabels
             await Task.Run(() => SaveBase());
         }
 
-        public static byte[] Serialize<T>(T obj)
+
+        private static byte[] Serialize<T>(T obj)
         {
             using (MemoryStream memStream = new MemoryStream())
             {
@@ -74,7 +61,7 @@ namespace WinColourLabels
                 return memStream.ToArray();
             }
         }
-        public static T Deserialize<T>(byte[] serializedObj)
+        private static T Deserialize<T>(byte[] serializedObj)
         {
             T obj = default(T);
             using (MemoryStream memStream = new MemoryStream(serializedObj))

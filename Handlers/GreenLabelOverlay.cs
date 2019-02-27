@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using WinColourLabels.AbstractHandlers;
+using WinColourLabels.Database;
 
 namespace WinColourLabels.Handlers
 {
@@ -10,11 +11,9 @@ namespace WinColourLabels.Handlers
     [Guid("2b471e59-7514-48a6-9f03-359b540262ca")]
     public class GreenLabelOverlay : AbstractIconOverlayHandler
     {
-        Database dbase = Database.GetInstance();
-
         protected override bool CanShowIconOverlay(string path)
         {
-            FileLabel label = dbase.GetFileLabel(path);
+            FileLabel label = DatabaseFacade.GetFileLabel(path);
             return label == FileLabel.GREEN;
         }
 

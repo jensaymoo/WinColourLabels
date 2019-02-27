@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
 using WinColourLabels.AbstractHandlers;
+using WinColourLabels.Database;
 
 
 namespace WinColourLabels.Handlers
@@ -17,98 +18,138 @@ namespace WinColourLabels.Handlers
     [Guid("3d855eb0-f92b-42a7-9ee8-c715d2c13942")]
     public sealed class AddRemoveLabelHandler : AbstractContextMenuHandler
     {
-        Database dbase = Database.GetInstance();
+        private static ContextMenuStrip menu;
+        private static ToolStripMenuItem itemred;
+        private static ToolStripMenuItem itemgreen;
+        private static ToolStripMenuItem itemblue;
+        private static ToolStripMenuItem itemorange;
+        private static ToolStripMenuItem itempurple;
+
+        private static EventHandler handlerred;
+        private static EventHandler handlergreen;
+        private static EventHandler handlerblue;
+        private static EventHandler handlerorange;
+        private static EventHandler handlerpurple;
+
+        static AddRemoveLabelHandler()
+        {
+            menu = new ContextMenuStrip();
+            menu.Items.Add(new ToolStripButton());
+
+            itemred = new ToolStripMenuItem
+            {
+                Image = Properties.Resources.Red16
+            };
+            menu.Items.Add(itemred);
+
+            itemgreen = new ToolStripMenuItem
+            {
+                Image = Properties.Resources.Green16
+            };
+            menu.Items.Add(itemgreen);
+
+            itemblue = new ToolStripMenuItem
+            {
+                Image = Properties.Resources.Blue16
+            };
+            menu.Items.Add(itemblue);
+
+            itemorange = new ToolStripMenuItem
+            {
+                Image = Properties.Resources.Orange16
+            };
+            menu.Items.Add(itemorange);
+
+            itempurple = new ToolStripMenuItem
+            {
+                Image = Properties.Resources.Purple16
+            };
+            menu.Items.Add(itempurple);
+        }
 
         protected override bool CanShowContextMenu()
         {
-            //foreach (var path in SelectedItemPaths)
-            //{
-            //    if (Path.GetExtension(path) == ".lnk") return false;
-            //}
-
             return true;
         }
         protected override ContextMenuStrip CreateContextMenu()
         {
-            var menu = new ContextMenuStrip();
+            bool multipleselecteditems = SelectedPaths.Length > 1 ? true : false;
 
-            var itemred = new ToolStripMenuItem
-            {
-                Text = "Добавить метку \"Красный\"",
-                Image = Properties.Resources.Red16
-            };
-            EventHandler redaddhandler = (s, e) => AddLabel(FileLabel.RED);
-            itemred.Click += redaddhandler ;
-            menu.Items.Add(itemred);
+            string addlabel, deletelabel;
 
-            var itemgreen = new ToolStripMenuItem
+            if (multipleselecteditems)
             {
-                Text = "Добавить метку \"Зеленый\"",
-                Image = Properties.Resources.Green16
-            };
-            EventHandler greenaddhandler = (sender, args) => AddLabel(FileLabel.GREEN);
-            itemgreen.Click += greenaddhandler;
-            menu.Items.Add(itemgreen);
+                addlabel = "Добавить метки";
+                deletelabel = "Удалить метки";
+            }
+            else
+            {
+                addlabel = "Добавить метку";
+                deletelabel = "Удалить метку";
+            }
 
-            var itemblue = new ToolStripMenuItem
-            {
-                Text = "Добавить метку \"Синий\"",
-                Image = Properties.Resources.Blue16
-            };
-            EventHandler blueaddhandler = (sender, args) => AddLabel(FileLabel.BLUE);
-            itemblue.Click += blueaddhandler;
-            menu.Items.Add(itemblue);
+            itemred.Text = addlabel + " \"Красный\"";
+            itemred.Click -= handlerred;
+            handlerred = (sender, args) => AddLabel(FileLabel.RED);
+            itemred.Click += handlerred;
 
-            var itemorange = new ToolStripMenuItem
-            {
-                Text = "Добавить метку \"Оранжевый\"",
-                Image = Properties.Resources.Orange16
-            };
-            EventHandler orangeaddhandler = (sender, args) => AddLabel(FileLabel.ORANGE);
-            itemorange.Click += orangeaddhandler;
-            menu.Items.Add(itemorange);
+            itemgreen.Text = addlabel + " \"Зеленый\"";
+            itemgreen.Click -= handlergreen;
+            handlergreen = (sender, args) => AddLabel(FileLabel.GREEN);
+            itemgreen.Click += handlergreen;
 
-            var itempurple = new ToolStripMenuItem
-            {
-                Text = "Добавить метку \"Фиолетовый\"",
-                Image = Properties.Resources.Purple16
-            };
-            EventHandler purpleaddhandler = (sender, args) => AddLabel(FileLabel.PURPLE);
-            itempurple.Click += purpleaddhandler;
-            menu.Items.Add(itempurple);
+            itemblue.Text = addlabel + " \"Синий\"";
+            itemblue.Click -= handlerblue;
+            handlerblue = (sender, args) => AddLabel(FileLabel.BLUE);
+            itemblue.Click += handlerblue;
+
+            itemorange.Text = addlabel + " \"Оранжевый\"";
+            itemorange.Click -= handlerorange;
+            handlerorange = (sender, args) => AddLabel(FileLabel.ORANGE);
+            itemorange.Click += handlerorange;
+
+            itempurple.Text = addlabel + " \"Фиолетовый\"";
+            itempurple.Click -= handlerpurple;
+            handlerpurple = (sender, args) => AddLabel(FileLabel.PURPLE);
+            itempurple.Click += handlerpurple;
 
             for (int i = 0; i < SelectedPaths.Length; i++)
             {
-                FileLabel label = dbase.GetFileLabel(SelectedPaths[i]);
+                FileLabel label = DatabaseFacade.GetFileLabel(SelectedPaths[i]);
                 switch (label)
                 {
                     case FileLabel.NOTHING:
                         continue;
                     case FileLabel.RED:
-                        itemred.Text = "Удалить метку \"Красный\"";
-                        itemred.Click -= redaddhandler;
-                        itemred.Click += (sender, args) => RemoveLabel(FileLabel.RED);
-                        break;
+                        itemred.Text = deletelabel + " \"Красный\"";
+                        itemred.Click -= handlerred;
+                        handlerred = (sender, args) => RemoveLabel(FileLabel.RED);
+                        itemred.Click += handlerred;
+                        continue;
                     case FileLabel.GREEN:
-                        itemgreen.Text = "Удалить метку \"Зеленый\"";
-                        itemgreen.Click -= greenaddhandler;
-                        itemgreen.Click += (sender, args) => RemoveLabel(FileLabel.GREEN);
-                        break;
+                        itemgreen.Text = deletelabel + " \"Зеленый\"";
+                        itemgreen.Click -= handlergreen;
+                        handlergreen = (sender, args) => RemoveLabel(FileLabel.GREEN);
+                        itemgreen.Click += handlergreen;
+                        continue;
                     case FileLabel.BLUE:
-                        itemblue.Text = "Удалить метку \"Синий\"";
-                        itemblue.Click -= blueaddhandler;
-                        itemblue.Click += (sender, args) => RemoveLabel(FileLabel.BLUE);
-                        break;
+                        itemblue.Text = deletelabel + " \"Синий\"";
+                        itemblue.Click -= handlerblue;
+                        handlerblue = (sender, args) => RemoveLabel(FileLabel.BLUE);
+                        itemblue.Click += handlerblue;
+                        continue;
                     case FileLabel.ORANGE:
-                        itemorange.Text = "Удалить метку \"Оранжевый\"";
-                        itemorange.Click -= orangeaddhandler;
-                        itemorange.Click += (sender, args) => RemoveLabel(FileLabel.ORANGE);
-                        break;
+                        itemorange.Text = deletelabel + " \"Оранжевый\"";
+                        itemorange.Click -= handlerorange;
+                        handlerorange = (sender, args) => RemoveLabel(FileLabel.ORANGE);
+                        itemorange.Click += handlerorange;
+                        continue;
                     case FileLabel.PURPLE:
-                        itempurple.Text = "Удалить метку \"Фиолетовый\"";
-                        itempurple.Click -= purpleaddhandler;
-                        itempurple.Click += (sender, args) => RemoveLabel(FileLabel.PURPLE);
-                        break;
+                        itempurple.Text = deletelabel + " \"Фиолетовый\"";
+                        itempurple.Click -= handlerpurple;
+                        handlerpurple = (sender, args) => RemoveLabel(FileLabel.PURPLE);
+                        itempurple.Click += handlerpurple;
+                        continue;
                 }
             }
             return menu;
@@ -117,23 +158,22 @@ namespace WinColourLabels.Handlers
         {
             for (int i = 0; i < SelectedPaths.Length; i++)
             {
-                dbase.SetFileLabel(SelectedPaths[i], label);
+                DatabaseFacade.SetFileLabel(SelectedPaths[i], label);
                 Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(SelectedPaths[i]), IntPtr.Zero);
             }
-            dbase.SaveBaseAsync();
+            DatabaseFacade.SaveBaseAsync();
         }
         private void RemoveLabel(FileLabel label)
         {
             for(int i =0; i < SelectedPaths.Length; i++)
             {
-                if (dbase.GetFileLabel(SelectedPaths[i]) == label)
+                if (DatabaseFacade.GetFileLabel(SelectedPaths[i]) == label)
                 {
-                    dbase.SetFileLabel(SelectedPaths[i], FileLabel.NOTHING);
-
+                    DatabaseFacade.SetFileLabel(SelectedPaths[i], FileLabel.NOTHING);
                     Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(SelectedPaths[i]), IntPtr.Zero);
                 }
             }
-            dbase.SaveBaseAsync();
+            DatabaseFacade.SaveBaseAsync();
         }
     }
 }
