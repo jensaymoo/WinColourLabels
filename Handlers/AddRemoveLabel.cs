@@ -34,7 +34,7 @@ namespace WinColourLabels.Handlers
         static AddRemoveLabelHandler()
         {
             menu = new ContextMenuStrip();
-            menu.Items.Add(new ToolStripButton());
+            menu.Items.Add(new ToolStripSeparator());
 
             itemred = new ToolStripMenuItem
             {
