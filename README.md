@@ -1,7 +1,7 @@
 # WinColourLabels
 
-![IconOverlay](./Docs/scr1.png)
-![ContextMenu](./Docs/scr2.png)
+![IconOverlay](./Docs/iconoverlays.png)
+![ContextMenu](./Docs/contextmenu.png)
 
 ## Инсталляция и деинсталляция
 Для работы, компонент можно зарегистрирован в операционной системе Windows двумя способами:
