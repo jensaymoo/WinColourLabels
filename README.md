@@ -4,12 +4,10 @@
 ![ContextMenu](./Docs/contextmenu.png)
 
 ## Инсталляция и деинсталляция
-Для работы, компонент можно зарегистрирован в операционной системе Windows двумя способами:
+Для работы, компонент нужно зарегистрирован в операционной системе Windows, это можно сделать двумя способами:
 
-Интегрируя компонент в глобальный кэш сборок .NET через утилиту [`gacutils`](https://docs.microsoft.com/ru-ru/dotnet/framework/app-domains/how-to-install-an-assembly-into-the-gac), затем зарегистрировав его как COM-сервер утилитой [`regasm`](https://docs.microsoft.com/ru-ru/dotnet/framework/tools/regasm-exe-assembly-registration-tool).
-Или разместить компонент свободно в файловой системе, а затем зарегистрировать при помощи `regasm` с параметром `/codebase`.
-
-Инсталляция и деинсталляция компонента в системе производиться утилитами  и .
++ Интегрировав компонент в глобальный кэш сборок .NET через утилиту [`gacutils`](https://docs.microsoft.com/ru-ru/dotnet/framework/app-domains/how-to-install-an-assembly-into-the-gac), затем зарегистрировав его как COM-сервер утилитой [`regasm`](https://docs.microsoft.com/ru-ru/dotnet/framework/tools/regasm-exe-assembly-registration-tool).
++ Или разместить компонент свободно в файловой системе, а затем зарегистрировать при помощи `regasm` с параметром `/codebase`.
 
 ### Инсталляция (с использованием GAC):
 ```
