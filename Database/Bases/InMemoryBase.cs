@@ -8,43 +8,48 @@ namespace WinColourLabels.Database
 {
     class InMemoryBase : IDatabase
     {
-        private Hashtable labelstable = new Hashtable();
+        private Hashtable labels_table;
 
         public InMemoryBase()
         {
             if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
                     "\\WinColourLabels\\Labels.db"))
             {
-                labelstable = Deserialize<Hashtable>(File.ReadAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                                                                "\\WinColourLabels\\Labels.db"));
+                labels_table = Hashtable.Synchronized(Deserialize<Hashtable>(File.ReadAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                                                                                "\\WinColourLabels\\Labels.db")));
             }
+            else
+            {
+                labels_table = Hashtable.Synchronized(new Hashtable());
+            }
+
         }
         public FileLabel GetFileLabel(string path)
         {
-            object curlabel = labelstable[path];
+            object current_label = labels_table[path];
 
-            if (curlabel != null)
-                return (FileLabel)curlabel;
+            if (current_label != null)
+                return (FileLabel)current_label;
             else return FileLabel.NOTHING;
         }
         public void SetFileLabel(string path, FileLabel label)
         {
             if (label == FileLabel.NOTHING)
             {
-                labelstable.Remove(path);
+                labels_table.Remove(path);
             }
             else
             {
-                labelstable[path] = (int)label;
+                labels_table[path] = (int)label;
             }
         }
 
-        private readonly object dbfile_lock = new object();
+        private readonly object file_lock = new object();
         public void SaveBase()
         {
-            lock (dbfile_lock)
+            lock (file_lock)
                 File.WriteAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                                "\\WinColourLabels\\Labels.db", Serialize(labelstable));
+                                                "\\WinColourLabels\\Labels.db", Serialize(labels_table));
         }
         public async void SaveBaseAsync()
         {

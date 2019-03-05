@@ -77,7 +77,7 @@ namespace WinColourLabels.Handlers
             {
                 Text = "Отменить маркер",
             };
-            itemdelete.Click += (sender, args) => RemoveAnyLabel(selecteditems);
+            itemdelete.Click += (sender, args) => RemoveLabel(selecteditems);
             menu.Items.Add(itemdelete);
         }
 
@@ -135,33 +135,21 @@ namespace WinColourLabels.Handlers
         }
         private static void AddLabel(string[] items, FileLabel label)
         {
+            DatabaseFacade.SetFilesLabelAndSaveAsync(items, label);
+
             for (int i = 0; i < items.Length; i++)
             {
-                DatabaseFacade.SetFileLabel(items[i], label);
                 Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(items[i]), IntPtr.Zero);
             }
-            DatabaseFacade.SaveBaseAsync();
         }
-        private static void RemoveAnyLabel(string[] items)
+        private static void RemoveLabel(string[] items)
         {
+            DatabaseFacade.SetFilesLabelAndSaveAsync(items, FileLabel.NOTHING);
+
             for (int i = 0; i < items.Length; i++)
             {
-                DatabaseFacade.SetFileLabel(items[i], FileLabel.NOTHING);
                 Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(items[i]), IntPtr.Zero);
             }
-            DatabaseFacade.SaveBaseAsync();
-        }
-        private static void RemoveLabel(string[] items, FileLabel label)
-        {
-            for(int i =0; i < items.Length; i++)
-            {
-                if (DatabaseFacade.GetFileLabel(items[i]) == label)
-                {
-                    DatabaseFacade.SetFileLabel(items[i], FileLabel.NOTHING);
-                    Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(items[i]), IntPtr.Zero);
-                }
-            }
-            DatabaseFacade.SaveBaseAsync();
         }
     }
 }
