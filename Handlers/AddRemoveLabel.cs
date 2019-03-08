@@ -35,7 +35,6 @@ namespace WinColourLabels.Handlers
 
             itemred = new ToolStripMenuItem
             {
-                Text = "Установить маркер \"Красный\"",
                 Image = Properties.Resources.Red16
             };
             itemred.Click += (sender, args) => AddLabel(selecteditems, FileLabel.RED);
@@ -43,7 +42,6 @@ namespace WinColourLabels.Handlers
 
             itemgreen = new ToolStripMenuItem
             {
-                Text = "Установить маркер \"Зеленый\"",
                 Image = Properties.Resources.Green16
             };
             itemgreen.Click += (sender, args) => AddLabel(selecteditems, FileLabel.GREEN);
@@ -51,7 +49,6 @@ namespace WinColourLabels.Handlers
 
             itemblue = new ToolStripMenuItem
             {
-                Text = "Установить маркер \"Синий\"",
                 Image = Properties.Resources.Blue16
             };
             itemblue.Click += (sender, args) => AddLabel(selecteditems, FileLabel.BLUE);
@@ -59,7 +56,6 @@ namespace WinColourLabels.Handlers
 
             itemorange = new ToolStripMenuItem
             {
-                Text = "Установить маркер \"Оранжевый\"",
                 Image = Properties.Resources.Orange16
             };
             itemorange.Click += (sender, args) => AddLabel(selecteditems, FileLabel.ORANGE);
@@ -67,16 +63,12 @@ namespace WinColourLabels.Handlers
 
             itempurple = new ToolStripMenuItem
             {
-                Text = "Установить маркер \"Фиолетовый\"",
                 Image = Properties.Resources.Purple16
             };
             itempurple.Click += (sender, args) => AddLabel(selecteditems, FileLabel.PURPLE);
             menu.Items.Add(itempurple);
 
-            itemdelete = new ToolStripMenuItem
-            {
-                Text = "Отменить маркер",
-            };
+            itemdelete = new ToolStripMenuItem();
             itemdelete.Click += (sender, args) => RemoveLabel(selecteditems);
             menu.Items.Add(itemdelete);
         }
@@ -98,10 +90,22 @@ namespace WinColourLabels.Handlers
 
             if (selecteditems.Length > 1)
             {
+                itemred.Text = "Установить маркер \"Красный\" для всех";
+                itemgreen.Text = "Установить маркер \"Зеленый\" для всех";
+                itemblue.Text = "Установить маркер \"Синий\" для всех";
+                itemorange.Text = "Установить маркер \"Оранжевый\" для всех";
+                itempurple.Text = "Установить маркер \"Фиолетовый\" для всех";
+
                 itemdelete.Text = "Отменить все маркеры...";
             }
             else
             {
+                itemred.Text = "Установить маркер \"Красный\"";
+                itemgreen.Text = "Установить маркер \"Зеленый\"";
+                itemblue.Text = "Установить маркер \"Синий\"";
+                itemorange.Text = "Установить маркер \"Оранжевый\"";
+                itempurple.Text = "Установить маркер \"Фиолетовый\"";
+
                 switch (DatabaseFacade.GetFileLabel(selecteditems[0]))
                 {
                     case FileLabel.RED:
