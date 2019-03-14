@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using WinColourLabels.AbstractHandlers;
-using WinColourLabels.Database;
+using Trinet.Core.IO.Ntfs;
 
 namespace WinColourLabels.Handlers
 {
@@ -13,8 +13,17 @@ namespace WinColourLabels.Handlers
     {
         protected override bool CanShowIconOverlay(string path)
         {
-            FileLabel label = DatabaseFacade.GetFileLabel(path);
-            return label == FileLabel.PURPLE;
+            if (FileSystem.AlternateDataStreamExists(path, "WinColourLabels"))
+            {
+                AlternateDataStreamInfo s = new AlternateDataStreamInfo(path,
+                new SafeNativeMethods.Win32StreamInfo { StreamName = "WinColourLabels" });
+
+                using (var stream = s.OpenRead())
+                {
+                    return (FileLabel)stream.ReadByte() == FileLabel.PURPLE;
+                }
+            }
+            else return false;
         }
 
         protected override Icon GetIconOverlay()

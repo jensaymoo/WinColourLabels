@@ -134,15 +134,21 @@
   <ItemGroup>
     <Compile Include="AbstractHandlers\AbstractContextMenuHandler.cs" />
     <Compile Include="AbstractHandlers\AbstractIconOverlayHandler.cs" />
-    <Compile Include="Database\DatabaseFacade.cs" />
-    <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="Database\Bases\InMemoryBase.cs" />
+    <Compile Include="AbstractHandlers\FileLabelEnum.cs" />
     <Compile Include="Handlers\AddRemoveLabel.cs" />
     <Compile Include="Handlers\BlueLabelOverlay.cs" />
     <Compile Include="Handlers\GreenLabelOverlay.cs" />
     <Compile Include="Handlers\OrangeLabelOverlay.cs" />
     <Compile Include="Handlers\PurpleLabelOverlay.cs" />
     <Compile Include="Handlers\RedLabelOverlay.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\AlternateDataStreamInfo.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\FileStreamAttributes.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\FileStreamType.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\FileSystem.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\Resources.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\SafeHGlobalHandle.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\SafeNativeMethods.cs" />
+    <Compile Include="NTFSStreams\ntfsstreams\Trinet.Core.IO.Ntfs\StreamName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -408,6 +414,7 @@
     <Content Include="Resources\Purple16.png" />
     <Content Include="Resources\Red16.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
