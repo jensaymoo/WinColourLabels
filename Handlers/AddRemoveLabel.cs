@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using WinColourLabels.AbstractHandlers;
 using Trinet.Core.IO.Ntfs;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace WinColourLabels.Handlers
@@ -14,119 +13,127 @@ namespace WinColourLabels.Handlers
     [Guid("3d855eb0-f92b-42a7-9ee8-c715d2c13942")]
     public sealed class AddRemoveLabelHandler : AbstractContextMenuHandler
     {
-        private static string[] selecteditems;
+        private static string[] selected_items;
+
         private static ContextMenuStrip menu;
-        private static ToolStripMenuItem itemred;
-        private static ToolStripMenuItem itemgreen;
-        private static ToolStripMenuItem itemblue;
-        private static ToolStripMenuItem itemorange;
-        private static ToolStripMenuItem itempurple;
-        private static ToolStripMenuItem itemdelete;
 
+        private static ToolStripMenuItem red_menuitem;
+        private static ToolStripMenuItem green_menuitem;
+        private static ToolStripMenuItem blue_menuitem;
+        private static ToolStripMenuItem orange_menuitem;
+        private static ToolStripMenuItem purple_menuitem;
+        private static ToolStripMenuItem remove_menuitem;
 
+        private static string red_str_add = "Установить маркер \"Красный\"";
+        private static string green_str_add = "Установить маркер \"Зеленый\"";
+        private static string blue_str_add = "Установить маркер \"Синий\"";
+        private static string orange_str_add = "Установить маркер \"Оранжевый\"";
+        private static string purple_str_add = "Установить маркер \"Фиолетовый\"";
+
+        private static string str_remove_all = "Отменить все маркеры...";
+        private static string str_remove_empty = "Отменить маркер...";
+
+        private static string red_str_remove = "Отменить маркер \"Красный\"";
+        private static string green_str_remove = "Отменить маркер \"Зеленый\"";
+        private static string blue_str_remove = "Отменить маркер \"Синий\"";
+        private static string orange_str_remove = "Отменить маркер \"Оранжевый\"";
+        private static string purple_str_remove = "Отменить маркер \"Фиолетовый\"";
+
+        private static string ntfs_stram_name = "WinColourLabels";
         static AddRemoveLabelHandler()
         {
             menu = new ContextMenuStrip();
             menu.Items.Add(new ToolStripSeparator());
 
-            itemred = new ToolStripMenuItem
+            red_menuitem = new ToolStripMenuItem
             {
+                Text = red_str_add,
                 Image = Properties.Resources.Red16
             };
-            itemred.Click += (sender, args) => AddLabelAsync(selecteditems, FileLabel.RED);
-            menu.Items.Add(itemred);
+            red_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.RED);
+            menu.Items.Add(red_menuitem);
 
-            itemgreen = new ToolStripMenuItem
+            green_menuitem = new ToolStripMenuItem
             {
+                Text = green_str_add,
                 Image = Properties.Resources.Green16
             };
-            itemgreen.Click += (sender, args) => AddLabelAsync(selecteditems, FileLabel.GREEN);
-            menu.Items.Add(itemgreen);
+            green_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.GREEN);
+            menu.Items.Add(green_menuitem);
 
-            itemblue = new ToolStripMenuItem
+            blue_menuitem = new ToolStripMenuItem
             {
+                Text = blue_str_add,
                 Image = Properties.Resources.Blue16
             };
-            itemblue.Click += (sender, args) => AddLabelAsync(selecteditems, FileLabel.BLUE);
-            menu.Items.Add(itemblue);
+            blue_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.BLUE);
+            menu.Items.Add(blue_menuitem);
 
-            itemorange = new ToolStripMenuItem
+            orange_menuitem = new ToolStripMenuItem
             {
+                Text = orange_str_add,
                 Image = Properties.Resources.Orange16
             };
-            itemorange.Click += (sender, args) => AddLabelAsync(selecteditems, FileLabel.ORANGE);
-            menu.Items.Add(itemorange);
+            orange_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.ORANGE);
+            menu.Items.Add(orange_menuitem);
 
-            itempurple = new ToolStripMenuItem
+            purple_menuitem = new ToolStripMenuItem
             {
+                Text = purple_str_add,
                 Image = Properties.Resources.Purple16
             };
-            itempurple.Click += (sender, args) => AddLabelAsync(selecteditems, FileLabel.PURPLE);
-            menu.Items.Add(itempurple);
+            purple_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.PURPLE);
+            menu.Items.Add(purple_menuitem);
 
-            itemdelete = new ToolStripMenuItem();
-            itemdelete.Click += (sender, args) => RemoveLabelAsync(selecteditems);
-            menu.Items.Add(itemdelete);
+            remove_menuitem = new ToolStripMenuItem();
+            remove_menuitem.Click += (sender, args) => RemoveLabelAsync(selected_items);
+            menu.Items.Add(remove_menuitem);
         }
 
-        protected override bool CanShowContextMenu()
-        {
-            return true;
-        }
+        protected override bool CanShowContextMenu() => true;
+
         protected override ContextMenuStrip CreateContextMenu()
         {
-            selecteditems = SelectedPaths;
+            selected_items = SelectedPaths;
 
-            itemred.Enabled = true;
-            itemgreen.Enabled = true;
-            itemblue.Enabled = true;
-            itemorange.Enabled = true;
-            itempurple.Enabled = true;
-            itemdelete.Enabled = true;
+            red_menuitem.Enabled = true;
+            green_menuitem.Enabled = true;
+            blue_menuitem.Enabled = true;
+            orange_menuitem.Enabled = true;
+            purple_menuitem.Enabled = true;
+            remove_menuitem.Enabled = true;
 
-            if (selecteditems.Length > 1)
+            if (selected_items.Length > 1)
             {
-                itemred.Text = "Установить маркер \"Красный\" для всех";
-                itemgreen.Text = "Установить маркер \"Зеленый\" для всех";
-                itemblue.Text = "Установить маркер \"Синий\" для всех";
-                itemorange.Text = "Установить маркер \"Оранжевый\" для всех";
-                itempurple.Text = "Установить маркер \"Фиолетовый\" для всех";
-
-                itemdelete.Text = "Отменить все маркеры...";
+                remove_menuitem.Text = str_remove_all;
             }
             else
             {
-                itemred.Text = "Установить маркер \"Красный\"";
-                itemgreen.Text = "Установить маркер \"Зеленый\"";
-                itemblue.Text = "Установить маркер \"Синий\"";
-                itemorange.Text = "Установить маркер \"Оранжевый\"";
-                itempurple.Text = "Установить маркер \"Фиолетовый\"";
-
-                switch (GetLabel(selecteditems[0]))
+                switch (GetLabel(selected_items[0]))
                 {
                     case FileLabel.RED:
-                        itemred.Enabled = false;
-                        itemdelete.Text = "Отменить маркер \"Красный\"";
+                        red_menuitem.Enabled = false;
+                        remove_menuitem.Text = red_str_remove;
                         break;
                     case FileLabel.GREEN:
-                        itemgreen.Enabled = false;
-                        itemdelete.Text = "Отменить маркер \"Зеленый\"";
+                        green_menuitem.Enabled = false;
+                        remove_menuitem.Text = green_str_remove;
                         break;
                     case FileLabel.BLUE:
-                        itemblue.Enabled = false;
-                        itemdelete.Text = "Отменить маркер \"Синий\"";
+                        blue_menuitem.Enabled = false;
+                        remove_menuitem.Text = blue_str_remove;
                         break;
                     case FileLabel.ORANGE:
-                        itemorange.Enabled = false;
-                        itemdelete.Text = "Отменить маркер \"Оранжевый\"";
+                        orange_menuitem.Enabled = false;
+                        remove_menuitem.Text = orange_str_remove;
                         break;
                     case FileLabel.PURPLE:
-                        itempurple.Enabled = false;
-                        itemdelete.Text = "Отменить маркер \"Фиолетовый\"";
+                        purple_menuitem.Enabled = false;
+                        remove_menuitem.Text = purple_str_remove;
                         break;
                     case FileLabel.NOTHING:
-                        itemdelete.Enabled = false;
-                        itemdelete.Text = "Отменить маркер...";
+                        remove_menuitem.Enabled = false;
+                        remove_menuitem.Text = str_remove_empty;
                         break;
                 }
             }
@@ -135,10 +142,9 @@ namespace WinColourLabels.Handlers
         }
         private static FileLabel GetLabel(string item)
         {
-            if (FileSystem.AlternateDataStreamExists(item, "WinColourLabels"))
+            if (FileSystem.AlternateDataStreamExists(item, ntfs_stram_name))
             {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, "WinColourLabels", null, true);
-
+                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, ntfs_stram_name, null, true);
                 using (var stream = s.OpenRead())
                 {
                     return (FileLabel)stream.ReadByte();
@@ -147,12 +153,11 @@ namespace WinColourLabels.Handlers
             else
                 return FileLabel.NOTHING;
         }
-        private static void AddLabel(string[] items, FileLabel label)
+        private static void AddLabels(string[] items, FileLabel label)
         {
-            for (int i = 0; i < items.Length; i++)
+            foreach (string item in items)
             {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(items[i],
-                    new SafeNativeMethods.Win32StreamInfo { StreamName = "WinColourLabels" });
+                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, ntfs_stram_name, null, true);
                 try
                 {
                     using (var stream = s.OpenWrite())
@@ -160,46 +165,28 @@ namespace WinColourLabels.Handlers
                         stream.WriteByte((byte)label);
                     }
                 }
-                catch(UnauthorizedAccessException ex)
+                catch (UnauthorizedAccessException)
                 {
-                    DialogResult result = MessageBox.Show($"Доступ к {items[i]} запрещен.", "WinColourLabels", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
-                    switch(result)
-                    {
-                        case DialogResult.Abort: return;
-                        case DialogResult.Ignore: continue;
-                        case DialogResult.Retry:
-                            i--; continue;
-                    }
+                    continue;
                 }
-
-                Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(items[i]), IntPtr.Zero);
             }
         }
-        private static async void AddLabelAsync(string[] items, FileLabel label) => await Task.Run(() => AddLabel(items, label));
-        private static void RemoveLabel(string[] items)
+        private static async void AddLabelsAsync(string[] items, FileLabel label) => await Task.Run(() => AddLabels(items, label));
+        private static void RemoveLabels(string[] items)
         {
-            for (int i = 0; i < items.Length; i++)
+            foreach (string item in items)
             {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(items[i],
-                    new SafeNativeMethods.Win32StreamInfo { StreamName = "WinColourLabels" });
+                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, ntfs_stram_name, null, true);
                 try
                 {
                     s.Delete();
                 }
-                catch (UnauthorizedAccessException ex)
+                catch (UnauthorizedAccessException)
                 {
-                    DialogResult result = MessageBox.Show($"Доступ к {items[i]} запрещен.", "WinColourLabels", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
-                    switch (result)
-                    {
-                        case DialogResult.Abort: return;
-                        case DialogResult.Ignore: continue;
-                        case DialogResult.Retry:
-                            i--; continue;
-                    }
+                    continue;
                 }
-                Shell32.SHChangeNotify(0x00002000, 0x0005, Marshal.StringToHGlobalUni(items[i]), IntPtr.Zero);
             }
         }
-        private static async void RemoveLabelAsync(string[] items) => await Task.Run(() => RemoveLabel(items));
+        private static async void RemoveLabelAsync(string[] items) => await Task.Run(() => RemoveLabels(items));
     }
 }
