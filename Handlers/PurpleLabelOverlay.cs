@@ -13,11 +13,9 @@ namespace WinColourLabels.Handlers
     {
         protected override bool CanShowIconOverlay(string path)
         {
-            if (FileSystem.AlternateDataStreamExists(path, "WinColourLabels"))
+            if (FileSystem.AlternateDataStreamExists(path, AddRemoveLabelHandler.ntfs_stram_name))
             {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(path,
-                new SafeNativeMethods.Win32StreamInfo { StreamName = "WinColourLabels" });
-
+                AlternateDataStreamInfo s = new AlternateDataStreamInfo(path, AddRemoveLabelHandler.ntfs_stram_name, null, true);
                 using (var stream = s.OpenRead())
                 {
                     return (FileLabel)stream.ReadByte() == FileLabel.PURPLE;

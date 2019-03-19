@@ -39,7 +39,7 @@ namespace WinColourLabels.Handlers
         private static string orange_str_remove = "Отменить маркер \"Оранжевый\"";
         private static string purple_str_remove = "Отменить маркер \"Фиолетовый\"";
 
-        private static string ntfs_stram_name = "WinColourLabels";
+        public static string ntfs_stram_name = "WinColourLabels";
         static AddRemoveLabelHandler()
         {
             menu = new ContextMenuStrip();
