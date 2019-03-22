@@ -1,5 +1,4 @@
-﻿
-namespace WinColourLabels
+﻿namespace WinColourLabels.Database
 {
     public enum FileLabel : byte
     {

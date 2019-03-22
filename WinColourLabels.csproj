@@ -134,7 +134,10 @@
   <ItemGroup>
     <Compile Include="AbstractHandlers\AbstractContextMenuHandler.cs" />
     <Compile Include="AbstractHandlers\AbstractIconOverlayHandler.cs" />
-    <Compile Include="AbstractHandlers\FileLabelEnum.cs" />
+    <Compile Include="Database\FileLabelEnum.cs" />
+    <Compile Include="Database\Bases\NTFS.cs" />
+    <Compile Include="Database\DatabaseFacade.cs" />
+    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Handlers\AddRemoveLabel.cs" />
     <Compile Include="Handlers\BlueLabelOverlay.cs" />
     <Compile Include="Handlers\GreenLabelOverlay.cs" />

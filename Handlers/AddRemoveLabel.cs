@@ -1,10 +1,8 @@
-﻿using SharpShell.Interop;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using WinColourLabels.AbstractHandlers;
-using Trinet.Core.IO.Ntfs;
-using System.Threading.Tasks;
+using WinColourLabels.Database;
 
 namespace WinColourLabels.Handlers
 {
@@ -39,7 +37,6 @@ namespace WinColourLabels.Handlers
         private static string orange_str_remove = "Отменить маркер \"Оранжевый\"";
         private static string purple_str_remove = "Отменить маркер \"Фиолетовый\"";
 
-        public static string ntfs_stram_name = "WinColourLabels";
         static AddRemoveLabelHandler()
         {
             menu = new ContextMenuStrip();
@@ -50,7 +47,7 @@ namespace WinColourLabels.Handlers
                 Text = red_str_add,
                 Image = Properties.Resources.Red16
             };
-            red_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.RED);
+            red_menuitem.Click += (sender, args) => DatabaseFacade.SetLabelAsync(selected_items, FileLabel.RED);
             menu.Items.Add(red_menuitem);
 
             green_menuitem = new ToolStripMenuItem
@@ -58,7 +55,7 @@ namespace WinColourLabels.Handlers
                 Text = green_str_add,
                 Image = Properties.Resources.Green16
             };
-            green_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.GREEN);
+            green_menuitem.Click += (sender, args) => DatabaseFacade.SetLabelAsync(selected_items, FileLabel.GREEN);
             menu.Items.Add(green_menuitem);
 
             blue_menuitem = new ToolStripMenuItem
@@ -66,7 +63,7 @@ namespace WinColourLabels.Handlers
                 Text = blue_str_add,
                 Image = Properties.Resources.Blue16
             };
-            blue_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.BLUE);
+            blue_menuitem.Click += (sender, args) => DatabaseFacade.SetLabelAsync(selected_items, FileLabel.BLUE);
             menu.Items.Add(blue_menuitem);
 
             orange_menuitem = new ToolStripMenuItem
@@ -74,7 +71,7 @@ namespace WinColourLabels.Handlers
                 Text = orange_str_add,
                 Image = Properties.Resources.Orange16
             };
-            orange_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.ORANGE);
+            orange_menuitem.Click += (sender, args) => DatabaseFacade.SetLabelAsync(selected_items, FileLabel.ORANGE);
             menu.Items.Add(orange_menuitem);
 
             purple_menuitem = new ToolStripMenuItem
@@ -82,11 +79,11 @@ namespace WinColourLabels.Handlers
                 Text = purple_str_add,
                 Image = Properties.Resources.Purple16
             };
-            purple_menuitem.Click += (sender, args) => AddLabelsAsync(selected_items, FileLabel.PURPLE);
+            purple_menuitem.Click += (sender, args) => DatabaseFacade.SetLabelAsync(selected_items, FileLabel.PURPLE);
             menu.Items.Add(purple_menuitem);
 
             remove_menuitem = new ToolStripMenuItem();
-            remove_menuitem.Click += (sender, args) => RemoveLabelAsync(selected_items);
+            remove_menuitem.Click += (sender, args) => DatabaseFacade.SetLabelAsync(selected_items, FileLabel.NOTHING);
             menu.Items.Add(remove_menuitem);
         }
 
@@ -109,7 +106,7 @@ namespace WinColourLabels.Handlers
             }
             else
             {
-                switch (GetLabel(selected_items[0]))
+                switch (DatabaseFacade.GetLabel(selected_items[0]))
                 {
                     case FileLabel.RED:
                         red_menuitem.Enabled = false;
@@ -140,53 +137,5 @@ namespace WinColourLabels.Handlers
 
             return menu;
         }
-        private static FileLabel GetLabel(string item)
-        {
-            if (FileSystem.AlternateDataStreamExists(item, ntfs_stram_name))
-            {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, ntfs_stram_name, null, true);
-                using (var stream = s.OpenRead())
-                {
-                    return (FileLabel)stream.ReadByte();
-                }
-            }
-            else
-                return FileLabel.NOTHING;
-        }
-        private static void AddLabels(string[] items, FileLabel label)
-        {
-            foreach (string item in items)
-            {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, ntfs_stram_name, null, true);
-                try
-                {
-                    using (var stream = s.OpenWrite())
-                    {
-                        stream.WriteByte((byte)label);
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    continue;
-                }
-            }
-        }
-        private static async void AddLabelsAsync(string[] items, FileLabel label) => await Task.Run(() => AddLabels(items, label));
-        private static void RemoveLabels(string[] items)
-        {
-            foreach (string item in items)
-            {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(item, ntfs_stram_name, null, true);
-                try
-                {
-                    s.Delete();
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    continue;
-                }
-            }
-        }
-        private static async void RemoveLabelAsync(string[] items) => await Task.Run(() => RemoveLabels(items));
     }
 }
