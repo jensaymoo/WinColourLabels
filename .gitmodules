@@ -1,6 +1,3 @@
 [submodule "SharpShell"]
 	path = SharpShell
 	url = https://github.com/dwmkerr/sharpshell
-[submodule "NTFSStreams"]
-	path = NTFSStreams
-	url = https://github.com/RichardD2/NTFS-Streams

@@ -1,5 +1,5 @@
 ﻿using System;
-using Trinet.Core.IO.Ntfs;
+using System.IO;
 
 namespace WinColourLabels.Database.Bases
 {
@@ -9,12 +9,12 @@ namespace WinColourLabels.Database.Bases
 
         public FileLabel GetLabel(string path)
         {
-            if (FileSystem.AlternateDataStreamExists(path, ntfs_stream_name))
+            NTFSStream stream = new NTFSStream(path, ntfs_stream_name);
+            if (stream.Exists())
             {
-                AlternateDataStreamInfo s = new AlternateDataStreamInfo(path, ntfs_stream_name, null, true);
-                using (var stream = s.OpenRead())
+                using (var filestream = stream.Open(FileAccess.Read, FileMode.Open, FileShare.Read))
                 {
-                    return (FileLabel)stream.ReadByte();
+                    return (FileLabel)filestream.ReadByte();
                 }
             }
             else return FileLabel.NOTHING;
@@ -22,17 +22,17 @@ namespace WinColourLabels.Database.Bases
 
         public void SetLabel(string path, FileLabel label)
         {
-            AlternateDataStreamInfo s = new AlternateDataStreamInfo(path, ntfs_stream_name, null, true);
+            NTFSStream stream = new NTFSStream(path, ntfs_stream_name);
             try
             {
                 if (label != FileLabel.NOTHING)
                 {
-                    using (var stream = s.OpenWrite())
+                    using (var filestream = stream.Open(FileAccess.Write, FileMode.OpenOrCreate, FileShare.Write))
                     {
-                        stream.WriteByte((byte)label);
+                        filestream.WriteByte((byte)label);
                     }
                 }
-                else s.Delete();
+                else stream.Delete();
             }
             catch (UnauthorizedAccessException)
             { }
