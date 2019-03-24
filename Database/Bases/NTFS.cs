@@ -11,7 +11,7 @@ namespace WinColourLabels.Database.Bases
 
         public FileLabel GetLabel(string path)
         {
-            NTFSStream stream = new NTFSStream(path, ntfs_stream_name);
+            NTFSDataStream stream = new NTFSDataStream(path, ntfs_stream_name);
             if (stream.Exists())
             {
                 try
@@ -21,7 +21,7 @@ namespace WinColourLabels.Database.Bases
                         return (FileLabel)filestream.ReadByte();
                     }
                 }
-                catch (IOException)
+                catch (NTFSDataStreamNotOpenedException)
                 { return FileLabel.NOTHING; }
             }
             else return FileLabel.NOTHING;
@@ -29,7 +29,7 @@ namespace WinColourLabels.Database.Bases
 
         public void SetLabel(string path, FileLabel label)
         {
-            NTFSStream stream = new NTFSStream(path, ntfs_stream_name);
+            NTFSDataStream stream = new NTFSDataStream(path, ntfs_stream_name);
             if (label != FileLabel.NOTHING)
             {
                 try
@@ -39,7 +39,7 @@ namespace WinColourLabels.Database.Bases
                         filestream.WriteByte((byte)label);
                     }
                 }
-                catch (IOException)
+                catch (NTFSDataStreamNotOpenedException)
                 { return; }
             }
             else if (stream.Exists()) stream.Delete();

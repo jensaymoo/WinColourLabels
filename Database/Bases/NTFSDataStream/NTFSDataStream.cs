@@ -7,10 +7,10 @@ using Microsoft.Win32.SafeHandles;
 
 namespace WinColourLabels.Database.Bases
 {
-    class NTFSStream
+    class NTFSDataStream
     {
-        private string fullpath;
-        public string FullPath { get { return fullpath; } }
+        private string fullpathstream;
+        public string FullPathStream { get { return fullpathstream; } }
 
         private string path;
         public string Path
@@ -18,18 +18,13 @@ namespace WinColourLabels.Database.Bases
             get { return path; }
             set
             {
-                if (File.Exists(value))
-                    UpdatePath();
-                else if (Directory.Exists(value))
-                    UpdatePath();
-                else
-                    throw new FileNotFoundException();
-
-                void UpdatePath()
+                if (File.Exists(value) || Directory.Exists(value))
                 {
                     path = value;
                     UpdateFullPath();
                 }
+                else
+                    throw new NTFSDataStreamPathNotFoundException(value);
             }
         }
 
@@ -44,7 +39,7 @@ namespace WinColourLabels.Database.Bases
             }
         }
 
-        public NTFSStream(string Path, string StreamName)
+        public NTFSDataStream(string Path, string StreamName)
         {
             this.Path = Path;
             this.StreamName = StreamName;
@@ -53,10 +48,16 @@ namespace WinColourLabels.Database.Bases
         public FileStream Open(FileAccess access, FileMode mode, FileShare share)
         {
             if (mode == FileMode.Append) mode = FileMode.OpenOrCreate;
+
+            bool exist = Exists();
+
+            if (mode == FileMode.Open) if(!exist) throw new NTFSDataStreamNotFoundException(fullpathstream);
+            if (mode == FileMode.Create) if (exist) throw new NTFSDataStreamAlreadyExistException(fullpathstream);
+            
             new FileIOPermission(CalculateAccess(mode, access), path).Demand();
 
-            SafeFileHandle handle = CreateFile(fullpath, access, share, IntPtr.Zero, mode, 0, IntPtr.Zero);
-            if (handle.IsInvalid) throw new IOException(string.Empty, new Win32Exception());
+            SafeFileHandle handle = CreateFile(fullpathstream, access, share, IntPtr.Zero, mode, 0, IntPtr.Zero);
+            if (handle.IsInvalid) throw new NTFSDataStreamNotOpenedException(fullpathstream, mode, access, share, new Win32Exception());
 
             return new FileStream(handle, access);
         }
@@ -66,16 +67,16 @@ namespace WinColourLabels.Database.Bases
             {
                 new FileIOPermission(FileIOPermissionAccess.Write, path).Demand();
 
-                return DeleteFile(fullpath);
+                return DeleteFile(fullpathstream);
             }
             else
-                throw new FileNotFoundException();
+                throw new NTFSDataStreamNotFoundException(fullpathstream);
         }
 
-        public bool Exists() => -1 != GetFileAttributes(fullpath);
+        public bool Exists() => -1 != GetFileAttributes(fullpathstream);
         public static bool Exists(string Path, string StreamName) => -1 != GetFileAttributes(BuildStreamPath(Path, StreamName));
         
-        private void UpdateFullPath() => fullpath = BuildStreamPath(path, streamname);
+        private void UpdateFullPath() => fullpathstream = BuildStreamPath(path, streamname);
 
         private static string BuildStreamPath(string Path, string StreamName)
         {
