@@ -14,10 +14,15 @@ namespace WinColourLabels.Database.Bases
             NTFSStream stream = new NTFSStream(path, ntfs_stream_name);
             if (stream.Exists())
             {
-                using (var filestream = stream.Open(FileAccess.Read, FileMode.Open, FileShare.Read))
+                try
                 {
-                    return (FileLabel)filestream.ReadByte();
+                    using (var filestream = stream.Open(FileAccess.Read, FileMode.Open, FileShare.ReadWrite))
+                    {
+                        return (FileLabel)filestream.ReadByte();
+                    }
                 }
+                catch (IOException)
+                { return FileLabel.NOTHING; }
             }
             else return FileLabel.NOTHING;
         }
@@ -35,7 +40,7 @@ namespace WinColourLabels.Database.Bases
                     }
                 }
                 catch (IOException)
-                { }
+                { return; }
             }
             else if (stream.Exists()) stream.Delete();
         }
