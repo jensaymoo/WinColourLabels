@@ -136,6 +136,7 @@
     <Compile Include="AbstractHandlers\AbstractIconOverlayHandler.cs" />
     <Compile Include="Database\Bases\NTFSDataStream\NTFSDataStream.cs" />
     <Compile Include="Database\Bases\NTFSDataStream\NTFSDataStreamExceptions.cs" />
+    <Compile Include="Database\Bases\NTFSDataStream\NTFSDataStreamNative.cs" />
     <Compile Include="Database\FileLabelEnum.cs" />
     <Compile Include="Database\Bases\NTFS.cs" />
     <Compile Include="Database\DatabaseFacade.cs" />

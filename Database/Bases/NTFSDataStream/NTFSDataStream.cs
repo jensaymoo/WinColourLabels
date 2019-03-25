@@ -47,34 +47,35 @@ namespace WinColourLabels.Database.Bases
 
         public FileStream Open(FileAccess access, FileMode mode, FileShare share)
         {
-            if (mode == FileMode.Append) mode = FileMode.OpenOrCreate;
-
             bool exist = Exists();
 
-            if (mode == FileMode.Open) if(!exist) throw new NTFSDataStreamNotFoundException(fullpathstream);
+            if (mode == FileMode.Append) mode = FileMode.OpenOrCreate;
+            if (mode == FileMode.Open) if(!exist) throw new NTFSDataStreamPathNotFoundException(fullpathstream);
             if (mode == FileMode.Create) if (exist) throw new NTFSDataStreamAlreadyExistException(fullpathstream);
             
             new FileIOPermission(CalculateAccess(mode, access), path).Demand();
 
-            SafeFileHandle handle = CreateFile(fullpathstream, access, share, IntPtr.Zero, mode, 0, IntPtr.Zero);
-            if (handle.IsInvalid) throw new NTFSDataStreamNotOpenedException(fullpathstream, mode, access, share, new Win32Exception());
+            SafeFileHandle handle = NTFSDataStreamNative.CreateFile(fullpathstream, access, share, IntPtr.Zero, mode, 0, IntPtr.Zero);
+
+            if (handle.IsInvalid) NTFSDataStreamNative.Throw(Marshal.GetLastWin32Error(), fullpathstream);
 
             return new FileStream(handle, access);
         }
-        public bool Delete()
+        public void Delete()
         {
             if (Exists())
             {
                 new FileIOPermission(FileIOPermissionAccess.Write, path).Demand();
 
-                return DeleteFile(fullpathstream);
+                if (!NTFSDataStreamNative.DeleteFile(fullpathstream))
+                    NTFSDataStreamNative.Throw(Marshal.GetLastWin32Error(), fullpathstream);
             }
             else
-                throw new NTFSDataStreamNotFoundException(fullpathstream);
+                throw new NTFSDataStreamPathNotFoundException(fullpathstream);
         }
 
-        public bool Exists() => -1 != GetFileAttributes(fullpathstream);
-        public static bool Exists(string Path, string StreamName) => -1 != GetFileAttributes(BuildStreamPath(Path, StreamName));
+        public bool Exists() => -1 != NTFSDataStreamNative.GetFileAttributes(fullpathstream);
+        public static bool Exists(string Path, string StreamName) => -1 != NTFSDataStreamNative.GetFileAttributes(BuildStreamPath(Path, StreamName));
         
         private void UpdateFullPath() => fullpathstream = BuildStreamPath(path, streamname);
 
@@ -124,13 +125,5 @@ namespace WinColourLabels.Database.Bases
             return permissions;
         }
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern SafeFileHandle CreateFile(string lpFileName, FileAccess dwDesiredAccess, FileShare dwShareMode, IntPtr lpSecurityAttributes, FileMode dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool DeleteFile(string name);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern int GetFileAttributes(string fileName);
     }
 }

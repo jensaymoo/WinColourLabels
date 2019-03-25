@@ -3,47 +3,48 @@ using System.IO;
 
 namespace WinColourLabels.Database.Bases
 {
-    public class NTFSDataStreamPathNotFoundException : IOException
+    public class NTFSDataStreamException : IOException
     {
         public string FullPath { get; }
-
-        public NTFSDataStreamPathNotFoundException(string path)
-            : base($"Path \"{path}\" not found.")
-        { FullPath = path; }
+        public NTFSDataStreamException(string message, string fullpathstream)
+            : base(message)
+        { FullPath = fullpathstream; }
     }
-    public class NTFSDataStreamNotFoundException : IOException
-    {
-        public string FullStreamPath { get; }
-
-        public NTFSDataStreamNotFoundException(string fullpathstream)
-            : base($"NTFS data stream \"{fullpathstream}\" not found.")
-        { FullStreamPath = fullpathstream; }
+    public class NTFSDataStreamPathNotFoundException : NTFSDataStreamException
+    {    
+        public NTFSDataStreamPathNotFoundException(string fullpathstream)
+            : base($"Path \"{fullpathstream}\" not found.", fullpathstream)
+        { }
     }
-    public class NTFSDataStreamAlreadyExistException : IOException
+    public class NTFSDataStreamPathIncorrectException : NTFSDataStreamException
     {
-        public string FullStreamPath { get; }
-
+        public NTFSDataStreamPathIncorrectException(string fullpathstream)
+            : base($"The path \"{fullpathstream}\" syntax is incorrect.", fullpathstream)
+        { }
+    }
+    public class NTFSDataStreamAccessDeniedException : NTFSDataStreamException
+    {
+        public NTFSDataStreamAccessDeniedException(string fullpathstream)
+            : base($"Access to the \"{fullpathstream}\" denied.", fullpathstream)
+        { }
+    }
+    public class NTFSDataStreamSharingVoliationException : NTFSDataStreamException
+    {
+        public NTFSDataStreamSharingVoliationException(string fullpathstream)
+            : base($"Cannot access the \"{fullpathstream}\" because it is being used by another process.", fullpathstream)
+        { }
+    }
+    public class NTFSDataStreamLockVoliationException : NTFSDataStreamException
+    {
+        public NTFSDataStreamLockVoliationException(string fullpathstream)
+            : base($"Cannot access the \"{fullpathstream}\" because another process has locked a portion of the file.", fullpathstream)
+        { }
+    }
+    public class NTFSDataStreamAlreadyExistException : NTFSDataStreamException
+    {
         public NTFSDataStreamAlreadyExistException(string fullpathstream)
-            : base($"NTFS data stream \"{fullpathstream}\" already exists.")
-        { FullStreamPath = fullpathstream; }
+            : base($"\"{fullpathstream}\" already exists.", fullpathstream)
+        { }
     }
-    public class NTFSDataStreamNotOpenedException : IOException
-    {
-        public FileMode Mode { get; }
-        public FileAccess Access { get; }
-        public FileShare Share { get; }
 
-        public string FullStreamPath { get; }
-
-        public NTFSDataStreamNotOpenedException(string fullpathstream, FileMode mode, FileAccess access, 
-            FileShare share, Exception inner) 
-            : base($"NTFS data stream \"{fullpathstream}\" can not be opened.", inner)
-        {
-            FullStreamPath = fullpathstream;
-
-            Mode = mode;
-            Access = access;
-            Share = share;
-        }
-    }
 }

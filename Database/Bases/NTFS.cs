@@ -21,7 +21,7 @@ namespace WinColourLabels.Database.Bases
                         return (FileLabel)filestream.ReadByte();
                     }
                 }
-                catch (NTFSDataStreamNotOpenedException)
+                catch (NTFSDataStreamException)
                 { return FileLabel.NOTHING; }
             }
             else return FileLabel.NOTHING;
@@ -39,9 +39,9 @@ namespace WinColourLabels.Database.Bases
                         filestream.WriteByte((byte)label);
                     }
                 }
-                catch (NTFSDataStreamNotOpenedException)
+                catch (NTFSDataStreamException)
                 { return; }
-            }
+        }
             else if (stream.Exists()) stream.Delete();
         }
 
