@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Security;
-using System.Security.Permissions;
+﻿using System.IO;
+using NTFSDataStreams;
+using NTFSDataStreams.Exceptions;
 
 namespace WinColourLabels.Database.Bases
 {
@@ -11,38 +10,52 @@ namespace WinColourLabels.Database.Bases
 
         public FileLabel GetLabel(string path)
         {
-            NTFSDataStream stream = new NTFSDataStream(path, ntfs_stream_name);
-            if (stream.Exists())
+            if (NTFSDataStream.Exists(path, ntfs_stream_name))
             {
                 try
                 {
-                    using (var filestream = stream.Open(FileAccess.Read, FileMode.Open, FileShare.ReadWrite))
+                    using (var stream = new NTFSDataStream(path, ntfs_stream_name,
+                    FileAccess.Read, FileMode.Open, FileShare.ReadWrite))
                     {
-                        return (FileLabel)filestream.ReadByte();
+                        return (FileLabel)stream.ReadByte();
                     }
                 }
                 catch (NTFSDataStreamException)
-                { return FileLabel.NOTHING; }
+                {
+                    return FileLabel.NOTHING;
+                }
             }
             else return FileLabel.NOTHING;
         }
 
         public void SetLabel(string path, FileLabel label)
         {
-            NTFSDataStream stream = new NTFSDataStream(path, ntfs_stream_name);
             if (label != FileLabel.NOTHING)
             {
                 try
                 {
-                    using (var filestream = stream.Open(FileAccess.Write, FileMode.OpenOrCreate, FileShare.Read))
+                    using (var stream = new NTFSDataStream(path, ntfs_stream_name,
+                        FileAccess.Write, FileMode.OpenOrCreate, FileShare.Read))
                     {
-                        filestream.WriteByte((byte)label);
+                        stream.WriteByte((byte)label);
                     }
                 }
                 catch (NTFSDataStreamException)
-                { return; }
-        }
-            else if (stream.Exists()) stream.Delete();
+                {
+                    return;
+                }
+            }
+            else if (NTFSDataStream.Exists(path, ntfs_stream_name))
+            {
+                try
+                {
+                    NTFSDataStream.Delete(path, ntfs_stream_name);
+                }
+                catch (NTFSDataStreamException)
+                {
+                    return;
+                }
+            }
         }
 
         public void SetLabel(string[] paths, FileLabel label)

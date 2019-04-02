@@ -1,3 +1,6 @@
 [submodule "SharpShell"]
 	path = SharpShell
 	url = https://github.com/dwmkerr/sharpshell
+[submodule "Database/Bases/NTFSDataStreams"]
+	path = Database/Bases/NTFSDataStreams
+	url = https://github.com/habro430/NTFSDataStreams
